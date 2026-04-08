@@ -1,0 +1,5 @@
+:9000 {
+    reverse_proxy /uploads/* plane-minio:9000
+    reverse_proxy /uploads plane-minio:9000
+    reverse_proxy /* api:8000
+}

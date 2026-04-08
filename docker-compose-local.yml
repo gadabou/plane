@@ -45,7 +45,7 @@ services:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
     ports:
-      - "9000:9000"
+      - "9001:9000"
       - "9090:9090"
 
   plane-db:
@@ -61,7 +61,20 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5438:5432"
+
+  proxy:
+    image: caddy:2.7-alpine
+    restart: unless-stopped
+    networks:
+      - dev_env
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./apps/proxy/Caddyfile.local:/etc/caddy/Caddyfile
+    depends_on:
+      - api
+      - plane-minio
 
   api:
     build:
@@ -81,8 +94,6 @@ services:
       - plane-db
       - plane-redis
       - plane-mq
-    ports:
-      - "8000:8000"
 
   worker:
     build:
